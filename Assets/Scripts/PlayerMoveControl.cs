@@ -32,11 +32,13 @@ public class PlayerMoveControl : MonoBehaviour
     public Camera playerCam;
     private bool canMove;
     private CalculatedDataTransporter transporter;
-    public Animator animator;
+    public float gravity;
+    
 
 
     private void Start()
     {
+        Physics.gravity = new Vector3(0, gravity, 0);
         rb = GetComponent<Rigidbody>();
         transporter = new CalculatedDataTransporter();
     }
@@ -57,38 +59,42 @@ public class PlayerMoveControl : MonoBehaviour
                 var position = transform.position;
                 player.transform.position = new Vector3(position.x + coord[0], position.y, position.z + coord[2]);
             }
-
+            
             if (Input.GetKey(KeyCode.S))
             {
                 float[] coord = GetCoordinatesByAngelToMoveBackAndForward(player.transform.localEulerAngles, moveSpeed);
                 var position = transform.position;
                 player.transform.position = new Vector3(position.x - coord[0], position.y, position.z - coord[2]);
             }
-
+            
             if (Input.GetKey(KeyCode.A))
             {
                 float[] coord = GetCoordinatesByAngelToMoveRightAndLeft(player.transform.localEulerAngles, moveSpeed);
-
-
+            
+            
                 var position = transform.position;
                 player.transform.position = new Vector3(position.x - coord[0], position.y, position.z - coord[2]);
             }
-
+            
             if (Input.GetKey(KeyCode.D))
             {
                 float[] coord = GetCoordinatesByAngelToMoveRightAndLeft(player.transform.localEulerAngles, moveSpeed);
-
-
+            
+            
                 var position = transform.position;
                 player.transform.position = new Vector3(position.x + coord[0], position.y, position.z + coord[2]);
             }
-
+            
+            if (Input.GetKey(KeyCode.R))
+            {
+                player.transform.position = new Vector3(0, 0, 0);
+            }
             if (Input.GetKey(KeyCode.Space))
             {
                 if (isOnTheGround)
                 {
                     rb.AddForce(Vector2.up * jumpSpeed, ForceMode.Impulse);
-                    
+            
                     isOnTheGround = false;
                 }
             }
@@ -115,20 +121,18 @@ public class PlayerMoveControl : MonoBehaviour
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
         }
-
+        
         if (canMove)
         {
             if (Input.GetAxis("Mouse X") != 0)
             {
-            
-                 var localEulerAngles = rotateSpeed * new Vector3(0, Input.GetAxisRaw("Mouse X"), 0);
+                var localEulerAngles = rotateSpeed * new Vector3(0, Input.GetAxisRaw("Mouse X"), 0);
                 player.transform.localEulerAngles += localEulerAngles;
             }
-            
+        
             if (Input.GetAxis("Mouse Y") != 0)
             {
-                var localEulerAngles = rotateSpeed * new Vector3(-Input.GetAxisRaw("Mouse Y"),
-                    0, 0);
+                var localEulerAngles = rotateSpeed * new Vector3(-Input.GetAxisRaw("Mouse Y"), 0, 0);
                 playerCam.transform.eulerAngles += localEulerAngles;
             }
         }
@@ -143,7 +147,8 @@ public class PlayerMoveControl : MonoBehaviour
     private CalculatedDataTransporter CalculateXZCoordinates(Vector3 angels, float step, float reduceBy)
     {
         transporter.QuadrantTriangleLegA = (float) (step * Math.Sin(Math.PI * (angels.y - reduceBy) / 180.0));
-        transporter.CvadrantTriangleLegB = (float) Math.Sqrt(Math.Pow(step, 2) - Math.Pow(transporter.QuadrantTriangleLegA, 2));
+        transporter.CvadrantTriangleLegB =
+            (float) Math.Sqrt(Math.Pow(step, 2) - Math.Pow(transporter.QuadrantTriangleLegA, 2));
 
         return transporter;
     }
